@@ -1,7 +1,5 @@
 # Practice Software Testing - Playwright Framework
 
-A robust, scalable, and modern E2E test automation framework built for portfolio demonstration.
-
 This framework targets the [Practice Software Testing](https://practicesoftwaretesting.com/) application and demonstrates modern QA engineering practices using Playwright and Python.
 
 ## 🚀 Key Features
