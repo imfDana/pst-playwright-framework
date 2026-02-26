@@ -10,6 +10,8 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4
     
@@ -24,10 +26,13 @@ jobs:
         pip install -r requirements.txt
         
     - name: Ensure browsers are installed
-      run: playwright install --with-deps chromium
+      run: python -m playwright install --with-deps chromium
       
     - name: Run Pytest
       run: pytest --alluredir=allure-results
+      env:
+        HEADLESS: true
+
       
     - name: Get Allure history
       uses: actions/checkout@v4
