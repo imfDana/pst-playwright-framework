@@ -1,6 +1,7 @@
 import os
 import pytest
-from playwright.sync_api import sync_playwright, Playwright
+import allure
+from playwright.sync_api import sync_playwright, Playwright, Page
 from faker import Faker
 import json
 
@@ -11,6 +12,36 @@ from src.pages.checkout_page import CheckoutPage
 from src.pages.login_page import LoginPage
 
 fake = Faker()
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """
+    Hook to capture the result of each test step.
+    This allows us to know if a test failed and take action (like a screenshot).
+    """
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, "rep_" + rep.when, rep)
+
+@pytest.fixture(autouse=True)
+def screenshot_on_failure(request, page: Page):
+    """
+    Fixture that automatically takes a screenshot if a test fails
+    and attaches it to the Allure report.
+    """
+    yield
+    # request.node is the "item" from the hook above
+    if hasattr(request.node, "rep_call") and request.node.rep_call.failed:
+        try:
+            screenshot_path = f"screenshots/{request.node.name}.png"
+            page.screenshot(path=screenshot_path, full_page=True)
+            allure.attach.file(
+                screenshot_path,
+                name="failure_screenshot",
+                attachment_type=allure.attachment_type.PNG
+            )
+        except Exception as e:
+            print(f"Failed to take screenshot: {e}")
 
 @pytest.fixture(scope="session")
 def context(playwright: Playwright):
