@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     timeout-minutes: 60
@@ -27,6 +31,9 @@ jobs:
         
     - name: Ensure browsers are installed
       run: python -m playwright install --with-deps chromium
+    
+    - name: Create screenshots directory
+      run: mkdir -p screenshots
       
     - name: Run Pytest
       run: pytest --alluredir=allure-results
@@ -50,7 +57,7 @@ jobs:
         allure_history: allure-history
 
     - name: Deploy report to Github Pages
-      if: always()
+      if: always() && github.ref == 'refs/heads/main'
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
