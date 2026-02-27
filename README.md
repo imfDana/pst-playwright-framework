@@ -4,7 +4,6 @@ This framework targets the [Practice Software Testing](https://practicesoftwaret
 
 ## 🚀 Key Features
 
-*   **Hybrid Testing (API + UI):** Bypasses slow UI steps (like login or cart setup) by using the REST API to inject state directly into the browser context. This reduces execution time by up to 80%.
 *   **Page Object Model (POM):** Clean separation of UI locators/actions from test logic.
 *   **Network Interception:** Uses `page.route()` to intercept and wait for specific network requests instead of using flaky `time.sleep()`.
 *   **Data-Driven Generation:** Utilizes the `Faker` library to generate unique test data on the fly.
@@ -23,14 +22,12 @@ This framework targets the [Practice Software Testing](https://practicesoftwaret
 ```text
 ├── .github/workflows/      # CI/CD pipelines (GitHub Actions)
 ├── src/
-│   ├── api/                # API Client wrappers for state injection
+│   ├── api/                # API Client wrappers
 │   ├── pages/              # Page Object Model classes
 │   └── utils/              # Configuration and Environment variable handling
 ├── tests/
 │   ├── api/                # API tests (Backend validation)
-│   ├── ui/                 # UI tests (Network interception)
-│   ├── hybrid/             # Hybrid tests (API Setup -> UI Validation)
-│   └── e2e/                # Full End-to-End User Journeys
+│   └── ui/                 # UI tests (Network interception, validations)
 ├── .env.example            # Environment variables template
 ├── pytest.ini              # Pytest configuration
 └── requirements.txt        # Python dependencies
@@ -74,8 +71,6 @@ pytest
 ```bash
 pytest -m api       # Run only API tests
 pytest -m ui        # Run only UI tests
-pytest -m hybrid    # Run only Hybrid tests
-pytest -m e2e       # Run only E2E tests
 ```
 
 ## 📊 Viewing Reports
@@ -87,12 +82,3 @@ To view the report, run:
 allure serve allure-results
 ```
 
-## 💡 Highlighted Test Strategies
-
-### The "Hybrid" Approach
-In `tests/hybrid/test_hybrid_checkout.py`, the test doesn't log in via the UI. Instead, the `authenticated_context` fixture:
-1. Registers a unique user via a `POST /users/register` request.
-2. Authenticates the user via a `POST /users/login` request.
-3. Retrieves the JWT token.
-4. Opens a fresh Playwright Browser Context and injects the token into `window.localStorage['auth-token']`.
-5. The UI test then immediately navigates to `/checkout`, completely bypassing the login screen.
